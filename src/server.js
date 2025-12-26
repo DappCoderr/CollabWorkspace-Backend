@@ -1,6 +1,6 @@
 import express from 'express';
 import { connectDB } from './config/database.js';
-import apiRoutes from "./routes/apiRoutes.js"
+import apiRoutes from './routes/apiRoutes.js';
 import { PORT } from './config/serverConfig.js';
 
 const app = express();
@@ -8,8 +8,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/health', (req,res) => {
-  res.status(200).json({ success: true, message: 'Server is running'});
+app.get('/health', (req, res) => {
+  res.status(200).json({ success: true, message: 'Server is running' });
 });
 
 app.use('/api', apiRoutes);

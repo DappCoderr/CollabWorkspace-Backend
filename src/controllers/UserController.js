@@ -6,6 +6,7 @@ import {
 
 export const registerUserController = async (req, res) => {
   try {
+    console.log('User object in controller: ', req.body);
     const response = await registerUserService(req.body);
     return res.status(StatusCodes.OK).json({
       success: true,
