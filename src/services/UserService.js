@@ -1,9 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 
 import UserRepository from '../repositories/UserRepository.js';
-import { JWT_EXPIRES_IN, JWT_SECRET } from '../config/serverConfig.js';
+import { createToken } from '../utils/jwt.js';
 
 export const registerUserService = async (data) => {
   try {
@@ -33,9 +32,7 @@ export const loginUserService = async (data) => {
       throw err;
     }
 
-    const jwtToken = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN,
-    });
+    const jwtToken = createToken({ id: user._id, email: user.email });
 
     return {
       username: user.name,
