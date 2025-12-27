@@ -53,6 +53,11 @@ const workspaceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// workspaceSchema.index(
+//   { name: 1, owner: 1 },
+//   { unique: true }
+// );
+
 workspaceSchema.pre('save', function () {
   if (this.isNew) {
     this.members = [
