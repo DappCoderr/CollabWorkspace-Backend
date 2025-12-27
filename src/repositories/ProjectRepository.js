@@ -5,7 +5,7 @@ const ProjectRepository = {
   ...crudRepository(Project),
   getProjectWithWorkspaceDetails: async function (projectId) {
     return await Project.findById(projectId).populate('workspaceId');
-  }
+  },
 };
 
 export default ProjectRepository;
