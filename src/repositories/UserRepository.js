@@ -3,7 +3,8 @@ import User from '../schema/UserSchema.js';
 
 const UserRepository = {
   ...crudRepository(User),
-  getByEmail: async ({ email }) => await User.findOne({ email }).exec(),
+  getByEmail: async (email) =>
+    await User.findOne({ email }).select('+password'),
 };
 
 export default UserRepository;
