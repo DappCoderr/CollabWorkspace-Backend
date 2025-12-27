@@ -17,20 +17,6 @@ const projectSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    collaborators: [
-      {
-        userId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-          required: true,
-        },
-        role: {
-          type: String,
-          enum: ['owner', 'collaborator', 'viewer'],
-          default: 'collaborator',
-        },
-      },
-    ],
   },
   { timestamps: true }
 );
