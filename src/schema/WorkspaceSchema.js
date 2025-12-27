@@ -6,21 +6,17 @@ const workspaceSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide workspace name'],
       trim: true,
+      unique: true,
     },
     description: {
       type: String,
       required: [true, 'Please provide workspace description'],
       trim: true,
     },
-    owner: {
+    ownerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-    },
-    type: {
-      type: String,
-      enum: ['personal', 'organization'],
-      default: 'personal',
     },
     members: [
       {
@@ -57,18 +53,6 @@ const workspaceSchema = new mongoose.Schema(
 //   { name: 1, owner: 1 },
 //   { unique: true }
 // );
-
-workspaceSchema.pre('save', function () {
-  if (this.isNew) {
-    this.members = [
-      {
-        user: this.owner,
-        role: 'owner',
-        joinedAt: new Date(),
-      },
-    ];
-  }
-});
 
 const Workspace = mongoose.model('Workspace', workspaceSchema);
 
