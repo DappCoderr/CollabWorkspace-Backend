@@ -22,11 +22,17 @@ export const createWorkspaceService = async (data) => {
   }
 };
 
-export const addMemberToWorkspace = async ({ workspaceId, userId, role }) => {
+export const addMemberToWorkspaceService = async ({
+  workspaceId,
+  userId,
+  ownerId,
+  role,
+}) => {
   try {
     const updated = await WorkspaceRepository.addMemberToWorkspace({
       workspaceId,
       userId,
+      ownerId,
       role,
     });
     return updated;
