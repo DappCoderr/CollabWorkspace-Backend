@@ -4,6 +4,7 @@ import { crudRepository } from './crudRepository.js';
 import Workspace from '../schema/WorkspaceSchema.js';
 import User from '../schema/UserSchema.js';
 import Project from '../schema/ProjectSchema.js';
+import mongoose from 'mongoose';
 
 const WorkspaceRepository = {
   ...crudRepository(Workspace),
@@ -127,7 +128,7 @@ const WorkspaceRepository = {
       throw err;
     }
 
-    return await Workspace.find({userId});
+    return await Workspace.find({ userId });
   },
 };
 
