@@ -11,10 +11,11 @@ const WorkspaceRepository = {
   getByOwner: async ({ owner }) => await Workspace.find({ owner }).exec(),
   getByName: async ({ name }) => await Workspace.findOne({ name }).exec(),
 
-  addMemberToWorkspace: async ({ workspaceId, userId, role }) => {
+  addMemberToWorkspace: async ({ workspaceId, userId, ownerId, role }) => {
     if (
       !mongoose.Types.ObjectId.isValid(workspaceId) ||
-      !mongoose.Types.ObjectId.isValid(userId)
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(ownerId)
     ) {
       const err = new Error('Invalid ID');
       err.statusCode = StatusCodes.BAD_REQUEST;
@@ -25,6 +26,12 @@ const WorkspaceRepository = {
     if (!workspace) {
       const err = new Error('Workspace does not exist');
       err.statusCode = StatusCodes.NOT_FOUND;
+      throw err;
+    }
+
+    if (ownerId.toString() !== workspace.ownerId.toString()) {
+      const err = new Error('Admin does not have this workspace');
+      err.statusCode = StatusCodes.CONFLICT;
       throw err;
     }
 
