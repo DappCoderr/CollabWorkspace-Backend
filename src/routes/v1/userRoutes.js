@@ -2,8 +2,13 @@ import express from 'express';
 import {
   registerUserController,
   loginUserController,
+  getCurrentUserController,
+  getUserByIdController,
+  updateUserController,
+  deleteUserController,
+  getAllUsersController,
 } from '../../controllers/UserController.js';
-// import { authenticate, authorize } from '../../middleware/auth.js';
+import { isAuthenticated } from '../../middleware/isAuthenticated.js';
 
 const router = express.Router();
 
@@ -11,14 +16,13 @@ const router = express.Router();
 router.post('/register', registerUserController);
 router.post('/login', loginUserController);
 
-// Protected routes
-// router.get('/profile', authenticate, getCurrentUserController);
-// router.post('/change-password', authenticate, changePasswordController);
-// router.get('/:id', authenticate, getUserByIdController);
-// router.put('/:id', authenticate, updateUserController);
-// router.delete('/:id', authenticate, deleteUserController);
+// Protected routes (requires `x-access-token` header)
+router.get('/profile', isAuthenticated, getCurrentUserController);
+router.get('/:id', isAuthenticated, getUserByIdController);
+router.put('/:id', isAuthenticated, updateUserController);
+router.delete('/:id', isAuthenticated, deleteUserController);
 
-// // Admin only routes
-// router.get('/', authenticate, authorize('admin'), getAllUsersController);
+// Admin / listing
+router.get('/', isAuthenticated, getAllUsersController);
 
 export default router;
