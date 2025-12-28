@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 
 import UserRepository from '../repositories/UserRepository.js';
 import { createToken } from '../utils/jwt.js';
+import User from '../schema/UserSchema.js';
 
 export const registerUserService = async (data) => {
   try {
@@ -41,6 +42,76 @@ export const loginUserService = async (data) => {
     };
   } catch (error) {
     console.error('User Service Error: loginUserService', error);
+    throw error;
+  }
+};
+
+export const getCurrentUserService = async (userId) => {
+  try {
+    const user = await UserRepository.getById(userId);
+    if (!user) {
+      const err = new Error('User not found');
+      err.statusCode = StatusCodes.NOT_FOUND;
+      throw err;
+    }
+    return user;
+  } catch (error) {
+    console.error('User Service Error: getCurrentUserService', error);
+    throw error;
+  }
+};
+
+export const getUserByIdService = async (id) => {
+  try {
+    const user = await UserRepository.getById(id);
+    if (!user) {
+      const err = new Error('User not found');
+      err.statusCode = StatusCodes.NOT_FOUND;
+      throw err;
+    }
+    return user;
+  } catch (error) {
+    console.error('User Service Error: getUserByIdService', error);
+    throw error;
+  }
+};
+
+export const updateUserService = async (id, newData) => {
+  try {
+    const updated = await UserRepository.update(id, newData);
+    if (!updated) {
+      const err = new Error('User not found');
+      err.statusCode = StatusCodes.NOT_FOUND;
+      throw err;
+    }
+    return updated;
+  } catch (error) {
+    console.error('User Service Error: updateUserService', error);
+    throw error;
+  }
+};
+
+export const deleteUserService = async (id) => {
+  try {
+    const deleted = await UserRepository.delete(id);
+    if (!deleted) {
+      const err = new Error('User not found');
+      err.statusCode = StatusCodes.NOT_FOUND;
+      throw err;
+    }
+    return deleted;
+  } catch (error) {
+    console.error('User Service Error: deleteUserService', error);
+    throw error;
+  }
+};
+
+export const getAllUsersService = async () => {
+  try {
+    const users = await UserRepository.getAll();
+    return users;
+  } catch (error) {
+    console.error('User Service Error: getAllUsersService', error);
     throw error;
   }
 };
