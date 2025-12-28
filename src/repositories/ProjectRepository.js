@@ -6,6 +6,9 @@ const ProjectRepository = {
   getProjectWithWorkspaceDetails: async function (projectId) {
     return await Project.findById(projectId).populate('workspaceId');
   },
+  getByWorkspace: async function ({ workspaceId }) {
+    return await Project.find({ workspaceId }).exec();
+  },
 };
 
 export default ProjectRepository;
