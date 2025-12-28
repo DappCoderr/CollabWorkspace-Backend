@@ -1,4 +1,5 @@
 import WorkspaceRepository from '../repositories/WorkspaceRepository.js';
+import { StatusCodes } from 'http-status-codes';
 
 export const createWorkspaceService = async (data) => {
   try {
@@ -12,6 +13,7 @@ export const createWorkspaceService = async (data) => {
     const updateWorkspace = await WorkspaceRepository.addMemberToWorkspace({
       workspaceId: workspace._id,
       userId: data.ownerId,
+      ownerId: data.ownerId,
       role: 'owner',
     });
 
@@ -42,12 +44,28 @@ export const addMemberToWorkspaceService = async ({
   }
 };
 
-export const addProjectToWorkspace = async ({ workspaceId, projectId }) => {
+export const addProjectToWorkspaceService = async ({
+  workspaceId,
+  projectName,
+  ownerId,
+}) => {
   try {
+    const workspace = await WorkspaceRepository.getById(workspaceId);
+
+    const isUserAdminOfWorkspace = workspace.ownerId.toString() === ownerId.toString();
+
+    if (!isUserAdminOfWorkspace) {
+      const err = new Error('Only owner can add project to workspace');
+      err.statusCode = StatusCodes.FORBIDDEN;
+      throw err;
+    }
+
     const updated = await WorkspaceRepository.addProjectToWorkspace({
       workspaceId,
-      projectId,
+      projectName,
+      ownerId,
     });
+
     return updated;
   } catch (error) {
     console.error('Workspace Service Error: addProjectToWorkspace', error);
@@ -71,6 +89,28 @@ export const updateWorkspace = async (workspaceId, newData) => {
     return updated;
   } catch (error) {
     console.error('Workspace Service Error: updateWorkspace', error);
+    throw error;
+  }
+};
+
+export const getAllWorkspacesByUserId = async (userId) => {
+  try {
+    const workspaces = await WorkspaceRepository.fetchAllWorkspaceByUserId({
+      userId,
+    });
+    return workspaces;
+  } catch (error) {
+    console.error('Workspace Service Error: getAllWorkspacesByUserId', error);
+    throw error;
+  }
+};
+
+export const getWorkspaceById = async (workspaceId) => {
+  try {
+    const workspace = await WorkspaceRepository.getById(workspaceId);
+    return workspace;
+  } catch (error) {
+    console.error('Workspace Service Error: getWorkspaceById', error);
     throw error;
   }
 };
