@@ -1,6 +1,7 @@
 import express from 'express';
 import userRoutes from './userRoutes.js';
 import workspaceRoutes from './workspaceRoutes.js';
+import projectRoutes from './projectRoutes.js';
 
 const router = express.Router();
 
@@ -13,5 +14,6 @@ router.get('/health', (req, res) => {
 
 router.use('/users', userRoutes);
 router.use('/workspaces', workspaceRoutes);
+router.use('/projects', projectRoutes);
 
 export default router;
