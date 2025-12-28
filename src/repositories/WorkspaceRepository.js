@@ -3,13 +3,33 @@ import { StatusCodes } from 'http-status-codes';
 import { crudRepository } from './crudRepository.js';
 import Workspace from '../schema/WorkspaceSchema.js';
 import User from '../schema/UserSchema.js';
-import Project from '../schema/ProjectSchema.js';
 import mongoose from 'mongoose';
+import ProjectRepository from './ProjectRepository.js';
 
 const WorkspaceRepository = {
   ...crudRepository(Workspace),
-  getByOwner: async ({ owner }) => await Workspace.find({ owner }).exec(),
-  getByName: async ({ name }) => await Workspace.findOne({ name }).exec(),
+
+  getByOwnerId: async ({ ownerId }) => {
+    const res = await Workspace.find({ ownerId });
+    if (!workspace) {
+      throw{
+        explanation: 'Invalid data sent from the client',
+        message: 'Workspace not found',
+        statusCode: StatusCodes.NOT_FOUND
+      }
+    }
+    return res;
+  },
+
+  getWorkspaceByName: async ({ name }) => {
+    const res = await Workspace.findOne({ name });
+    if (!workspace) {
+      const err = new Error('Workspace does not exist');
+      err.statusCode = StatusCodes.NOT_FOUND;
+      throw err;
+    }
+    return res;
+  },
 
   addMemberToWorkspace: async ({ workspaceId, userId, ownerId, role }) => {
     if (
@@ -54,32 +74,22 @@ const WorkspaceRepository = {
 
     const updateWorkspace = await Workspace.findByIdAndUpdate(
       workspaceId,
-      {
-        $push: {
-          members: {
-            userId,
-            role,
-            joinedAt: new Date(),
-          },
-        },
-      },
+      { $push: { members: { userId, role, joinedAt: new Date() } } },
       { new: true, runValidators: true }
     );
 
     return updateWorkspace;
   },
 
-  addProjectToWorkspace: async ({ workspaceId, projectId }) => {
-    if (
-      !mongoose.Types.ObjectId.isValid(workspaceId) ||
-      !mongoose.Types.ObjectId.isValid(projectId)
-    ) {
+  addProjectToWorkspace: async ({ workspaceId, projectName}) => {
+    if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
       const err = new Error('Invalid ID');
       err.statusCode = StatusCodes.BAD_REQUEST;
       throw err;
     }
 
-    const workspace = await Workspace.findById(workspaceId);
+    const workspace =
+      await Workspace.findById(workspaceId).populate('projects');
 
     if (!workspace) {
       const err = new Error('Workspace does not exist');
@@ -87,34 +97,24 @@ const WorkspaceRepository = {
       throw err;
     }
 
-    const project = await Project.findById(projectId);
-    if (!project) {
-      const err = new Error('Project does not exist');
-      err.statusCode = StatusCodes.NOT_FOUND;
-      throw err;
-    }
-
-    const alreadyProject = workspace.projects.some(
-      (m) => m.projectId.toString() === projectId.toString()
+    const isProjectAlreadyPartOfWorkspace = workspace.projects.find(
+      (project) => project.name === projectName
     );
 
-    if (alreadyProject) {
-      const err = new Error(
-        'User is already added this project to the workspace'
-      );
+    if (isProjectAlreadyPartOfWorkspace) {
+      const err = new Error('Workspace already has this project');
       err.statusCode = StatusCodes.CONFLICT;
       throw err;
     }
 
+    const newProject = await ProjectRepository.create({
+      name: projectName,
+      workspaceId: workspace._id,
+    });
+
     const updateWorkspace = await Workspace.findByIdAndUpdate(
       workspaceId,
-      {
-        $push: {
-          projects: {
-            projectId,
-          },
-        },
-      },
+      { $push: { projects: { projectId: newProject._id } } },
       { new: true, runValidators: true }
     );
 
